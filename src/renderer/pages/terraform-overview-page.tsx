@@ -1,6 +1,6 @@
-import { Renderer } from "@freelensapp/extensions";
+import { Common, Renderer } from "@freelensapp/extensions";
 import * as MobxReact from "mobx-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { TerraformPreferencesStore } from "../../common/store";
 import {
   INSTALL_DOCS_URL,
@@ -91,32 +91,40 @@ export const TerraformOverviewPage = observer((props: TerraformOverviewPageProps
     const [status, setStatus] = useState<ControllerStatus | undefined>(undefined);
     const [detecting, setDetecting] = useState(true);
 
-    const refresh = async () => {
+    // Tracks whether the component is still mounted across awaits so we don't
+    // setState() on an unmounted component or after a namespace switch.
+    const aliveRef = useRef(true);
+
+    const refresh = useCallback(async () => {
+      if (!aliveRef.current) return;
       setDetecting(true);
       const s = await detectController(preferences.controllerNamespace);
+      if (!aliveRef.current) return;
       setStatus(s);
       if (s.crdInstalled) {
         try {
-          const store = Terraform.getStore<Terraform>();
-          await store.loadAll();
-        } catch {
-          /* store may not be ready yet */
+          await Terraform.getStore<Terraform>().loadAll();
+        } catch (err) {
+          Common.logger.warn(`[${props.extension.name}] terraform store load: ${err}`);
         }
         try {
           await eventStore.loadAll();
-        } catch {
-          /* ignore */
+        } catch (err) {
+          Common.logger.warn(`[${props.extension.name}] event store load: ${err}`);
         }
       }
-      setDetecting(false);
-    };
+      if (aliveRef.current) setDetecting(false);
+    }, [preferences.controllerNamespace, props.extension.name]);
 
     useEffect(() => {
+      aliveRef.current = true;
       void refresh();
       const id = setInterval(() => void refresh(), 30_000);
-      return () => clearInterval(id);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [preferences.controllerNamespace]);
+      return () => {
+        aliveRef.current = false;
+        clearInterval(id);
+      };
+    }, [refresh]);
 
     let items: Terraform[] = [];
     try {
@@ -341,18 +349,32 @@ export const TerraformOverviewPage = observer((props: TerraformOverviewPageProps
 
     const renderNotInstalled = () => (
       <div className={styles.installBox}>
-        <strong>tofu-controller is not installed on this cluster.</strong>
-        <p>
-          The <code>Terraform</code> CRD ({TERRAFORM_API_VERSION}) was not found. Apply the upstream release manifest:
-        </p>
-        <pre>{installCommand}</pre>
+        <strong>
+          {status?.error ? "Cannot determine controller status." : "tofu-controller is not installed on this cluster."}
+        </strong>
+        {status?.error ? (
+          <p>
+            Permission error while detecting the controller:
+            <br />
+            <code>{status.error}</code>
+          </p>
+        ) : (
+          <p>
+            The <code>Terraform</code> CRD ({TERRAFORM_API_VERSION}) was not found. Apply the upstream release manifest:
+          </p>
+        )}
+        {!status?.error ? <pre>{installCommand}</pre> : null}
         <div className={styles.actions}>
           <Button label="Re-detect" primary onClick={refresh} />
-          <Button label="Copy install command" onClick={() => navigator.clipboard?.writeText(installCommand)} />
-          <Button
-            label="Open install docs"
-            onClick={() => window.open(INSTALL_DOCS_URL, "_blank", "noopener,noreferrer")}
-          />
+          {!status?.error ? (
+            <>
+              <Button label="Copy install command" onClick={() => navigator.clipboard?.writeText(installCommand)} />
+              <Button
+                label="Open install docs"
+                onClick={() => window.open(INSTALL_DOCS_URL, "_blank", "noopener,noreferrer")}
+              />
+            </>
+          ) : null}
         </div>
       </div>
     );
@@ -362,7 +384,7 @@ export const TerraformOverviewPage = observer((props: TerraformOverviewPageProps
         <style>{stylesInline}</style>
         <div className={styles.page}>
           <header className={styles.header}>
-            <h1>Tofu Controller — Overview · symlink live</h1>
+            <h1>Tofu Controller — Overview</h1>
             <div className={styles.filter}>
               <NamespaceSelectFilter id="tofu-overview-ns-filter" />
             </div>

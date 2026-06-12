@@ -28,7 +28,6 @@ export const CONTROLLER_IMAGE_PATTERN = /(tofu|tf)-controller/i;
 export const ANNOTATIONS = {
   reconcileRequest: "reconcile.fluxcd.io/requestedAt",
   breakTheGlassRequest: "break-the-glass.tf-controller/requestedAt",
-  replanRequest: "replan.tf-controller/requestedAt",
 } as const;
 
 export const PLAN_LABELS = {

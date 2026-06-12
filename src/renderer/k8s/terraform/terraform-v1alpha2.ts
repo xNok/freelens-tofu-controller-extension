@@ -82,6 +82,7 @@ export interface TerraformSpec {
   serviceAccountName?: string;
   alwaysCleanupRunnerPod?: boolean;
   refreshBeforeApply?: boolean;
+  workspace?: string;
 }
 
 export interface TerraformCondition {

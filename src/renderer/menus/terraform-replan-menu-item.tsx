@@ -22,14 +22,17 @@ export const TerraformReplanMenuItem = (props: TerraformReplanMenuItemProps) =>
       ConfirmDialog.open({
         ok: async () => {
           try {
-            const now = new Date().toISOString();
+            // tfctl's `replan` patches the status subresource to clear plan.pending and
+            // sets a `ReplanRequested` Ready reason. The Freelens extension API does not
+            // expose status patches, so we fall back to clearing spec.approvePlan and
+            // requesting a reconcile — the controller will produce a fresh plan on the
+            // next loop. This is best-effort, not a true replan.
             await store.patch(
               object,
               {
                 metadata: {
                   annotations: {
-                    [ANNOTATIONS.replanRequest]: now,
-                    [ANNOTATIONS.reconcileRequest]: now,
+                    [ANNOTATIONS.reconcileRequest]: new Date().toISOString(),
                   },
                 },
                 spec: {
@@ -38,7 +41,7 @@ export const TerraformReplanMenuItem = (props: TerraformReplanMenuItemProps) =>
               },
               "merge",
             );
-            Notifications.ok(`Replan requested for ${object.getName()}`);
+            Notifications.ok(`Reconciliation requested for ${object.getName()}`);
           } catch (err) {
             Notifications.error(`Replan failed: ${err}`);
           }
@@ -46,7 +49,12 @@ export const TerraformReplanMenuItem = (props: TerraformReplanMenuItemProps) =>
         labelOk: "Replan",
         message: (
           <p>
-            Force a fresh plan for <b>{object.getName()}</b>? Any pending plan will be discarded.
+            Request the controller to regenerate the plan for <b>{object.getName()}</b>?
+            <br />
+            <small>
+              Note: this is a best-effort replan via reconcile — Freelens extensions cannot patch the status subresource
+              that tfctl uses, so a stale pending plan may persist briefly until the next loop.
+            </small>
           </p>
         ),
       });

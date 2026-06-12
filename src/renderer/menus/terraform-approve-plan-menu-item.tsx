@@ -52,7 +52,12 @@ export const TerraformApprovePlanMenuItem = (props: TerraformApprovePlanMenuItem
 
     return (
       <>
-        <MenuItem onClick={() => approve(pending ?? "auto")} disabled={!pending}>
+        <MenuItem
+          onClick={() => {
+            if (pending) approve(pending);
+          }}
+          disabled={!pending}
+        >
           <Icon material="check_circle" interactive={toolbar} title="Approve plan" />
           <span className="title">Approve plan</span>
         </MenuItem>

@@ -3,7 +3,7 @@ import { withErrorPage } from "../components/error-page";
 import { Terraform } from "../k8s/terraform/terraform-v1alpha2";
 
 const {
-  Component: { Icon, MenuItem },
+  Component: { Icon, MenuItem, Notifications },
 } = Renderer;
 
 export interface TerraformSuspendToggleMenuItemProps extends Renderer.Component.KubeObjectMenuProps<Terraform> {
@@ -18,7 +18,12 @@ export const TerraformSuspendToggleMenuItem = (props: TerraformSuspendToggleMenu
     const store = Terraform.getStore<Terraform>();
 
     const set = async (suspend: boolean) => {
-      await store.patch(object, { spec: { suspend } }, "merge");
+      try {
+        await store.patch(object, { spec: { suspend } }, "merge");
+        Notifications.ok(`${object.getName()} ${suspend ? "suspended" : "resumed"}`);
+      } catch (err) {
+        Notifications.error(`${suspend ? "Suspend" : "Resume"} failed: ${err}`);
+      }
     };
 
     if (Terraform.isSuspended(object)) {

@@ -16,6 +16,13 @@ export interface ControllerStatus {
   controllerReady: boolean;
   controllerImage?: string;
   controllerDeploymentName?: string;
+  /** Last error encountered while detecting, if any (e.g. RBAC forbidden). */
+  error?: string;
+}
+
+function isForbidden(err: unknown): boolean {
+  const msg = String(err ?? "").toLowerCase();
+  return msg.includes("forbidden") || msg.includes("unauthorized") || msg.includes("status code 403");
 }
 
 const crdName = `${TERRAFORM_PLURAL}.${TERRAFORM_GROUP}`;
@@ -30,7 +37,8 @@ export async function detectController(controllerNamespace: string): Promise<Con
   try {
     const crd = await crdApi.get({ name: crdName });
     status.crdInstalled = Boolean(crd);
-  } catch {
+  } catch (err) {
+    if (isForbidden(err)) status.error = `Cannot read CRDs: ${err}`;
     status.crdInstalled = false;
   }
 
@@ -42,8 +50,12 @@ export async function detectController(controllerNamespace: string): Promise<Con
         recordDeployment(status, dep, candidate);
         return status;
       }
-    } catch {
-      // continue
+    } catch (err) {
+      if (isForbidden(err)) {
+        status.error = `Cannot read deployments in ${controllerNamespace}: ${err}`;
+        return status;
+      }
+      // 404s and other non-permission errors: try the next candidate.
     }
   }
 
@@ -59,8 +71,8 @@ export async function detectController(controllerNamespace: string): Promise<Con
         return status;
       }
     }
-  } catch {
-    // controller stays "not deployed"
+  } catch (err) {
+    if (isForbidden(err)) status.error = `Cannot list deployments in ${controllerNamespace}: ${err}`;
   }
 
   return status;

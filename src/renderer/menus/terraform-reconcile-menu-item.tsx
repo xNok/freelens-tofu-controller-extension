@@ -4,7 +4,7 @@ import { withErrorPage } from "../components/error-page";
 import { Terraform } from "../k8s/terraform/terraform-v1alpha2";
 
 const {
-  Component: { Icon, MenuItem },
+  Component: { Icon, MenuItem, Notifications },
 } = Renderer;
 
 export interface TerraformReconcileMenuItemProps extends Renderer.Component.KubeObjectMenuProps<Terraform> {
@@ -19,17 +19,22 @@ export const TerraformReconcileMenuItem = (props: TerraformReconcileMenuItemProp
     const store = Terraform.getStore<Terraform>();
 
     const reconcile = async () => {
-      await store.patch(
-        object,
-        {
-          metadata: {
-            annotations: {
-              [ANNOTATIONS.reconcileRequest]: new Date().toISOString(),
+      try {
+        await store.patch(
+          object,
+          {
+            metadata: {
+              annotations: {
+                [ANNOTATIONS.reconcileRequest]: new Date().toISOString(),
+              },
             },
           },
-        },
-        "merge",
-      );
+          "merge",
+        );
+        Notifications.ok(`Reconciliation requested for ${object.getName()}`);
+      } catch (err) {
+        Notifications.error(`Reconcile failed: ${err}`);
+      }
     };
 
     return (

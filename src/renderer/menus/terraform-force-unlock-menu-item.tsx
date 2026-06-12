@@ -18,11 +18,22 @@ export const TerraformForceUnlockMenuItem = (props: TerraformForceUnlockMenuItem
 
     const store = Terraform.getStore<Terraform>();
     const lockId = Terraform.getPendingLock(object);
+    const wasAuto = object.spec.tfstate?.forceUnlock === "auto";
 
     const unlock = () => {
       ConfirmDialog.open({
         ok: async () => {
           try {
+            // Mirror tfctl's behavior: if the user already opted into auto-unlock, don't downgrade
+            // them to one-shot "yes" — only set the field when they're on the default ("no").
+            const tfstatePatch = wasAuto
+              ? lockId
+                ? { lockIdentifier: lockId }
+                : undefined
+              : {
+                  forceUnlock: "yes" as const,
+                  ...(lockId ? { lockIdentifier: lockId } : {}),
+                };
             await store.patch(
               object,
               {
@@ -31,12 +42,7 @@ export const TerraformForceUnlockMenuItem = (props: TerraformForceUnlockMenuItem
                     [ANNOTATIONS.reconcileRequest]: new Date().toISOString(),
                   },
                 },
-                spec: {
-                  tfstate: {
-                    forceUnlock: "yes",
-                    ...(lockId ? { lockIdentifier: lockId } : {}),
-                  },
-                },
+                ...(tfstatePatch ? { spec: { tfstate: tfstatePatch } } : {}),
               },
               "merge",
             );
