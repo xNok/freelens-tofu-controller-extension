@@ -1,35 +1,31 @@
 import { Common } from "@freelensapp/extensions";
 import { makeObservable, observable } from "mobx";
+import { CONTROLLER_DEFAULT_NAMESPACE } from "../terraform-constants";
 
-export interface ExamplePreferencesModel {
-  enabled: boolean;
+export interface TerraformPreferencesModel {
+  controllerNamespace: string;
 }
 
-export class ExamplePreferencesStore extends Common.Store.ExtensionStore<ExamplePreferencesModel> {
-  @observable enabled = false;
+export class TerraformPreferencesStore extends Common.Store.ExtensionStore<TerraformPreferencesModel> {
+  @observable controllerNamespace: string = CONTROLLER_DEFAULT_NAMESPACE;
 
   constructor() {
     super({
-      configName: "example-preferences-store",
+      configName: "terraform-preferences-store",
       defaults: {
-        enabled: false,
+        controllerNamespace: CONTROLLER_DEFAULT_NAMESPACE,
       },
     });
-    console.log("[EXAMPLE-PREFERENCES-STORE] constructor");
     makeObservable(this);
   }
 
-  fromStore({ enabled }: ExamplePreferencesModel): void {
-    console.log(`[EXAMPLE-PREFERENCES-STORE] set ${enabled}`);
-
-    this.enabled = enabled;
+  fromStore({ controllerNamespace }: TerraformPreferencesModel): void {
+    this.controllerNamespace = controllerNamespace || CONTROLLER_DEFAULT_NAMESPACE;
   }
 
-  toJSON(): ExamplePreferencesModel {
-    const enabled = this.enabled;
-    console.log(`[EXAMPLE-PREFERENCES-STORE] get ${enabled}`);
+  toJSON(): TerraformPreferencesModel {
     return {
-      enabled,
+      controllerNamespace: this.controllerNamespace,
     };
   }
 }

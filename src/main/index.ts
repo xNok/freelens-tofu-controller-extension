@@ -1,8 +1,8 @@
 import { Main } from "@freelensapp/extensions";
-import { ExamplePreferencesStore } from "../common/store";
+import { TerraformPreferencesStore } from "../common/store";
 
-export default class ExampleMain extends Main.LensExtension {
+export default class TofuControllerMain extends Main.LensExtension {
   async onActivate() {
-    await ExamplePreferencesStore.getInstanceOrCreate().loadExtension(this);
+    await TerraformPreferencesStore.getInstanceOrCreate().loadExtension(this);
   }
 }

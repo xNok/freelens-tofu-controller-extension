@@ -1,10 +1,10 @@
 {
-  "name": "@freelensapp/example-extension",
-  "version": "1.9.1-0",
-  "description": "Example of a Freelens extension",
+  "name": "@xnok/freelens-tofu-controller-extension",
+  "version": "0.1.1-2",
+  "description": "Freelens extension for managing Flux tofu-controller (OpenTofu/Terraform) resources",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/freelensapp/freelens-example-extension.git",
+    "url": "git+https://github.com/xNok/freelens-tofu-controller-extension.git",
     "directory": "."
   },
   "main": "out/main/index.js",
@@ -83,7 +83,14 @@
     "freelensapp",
     "lens",
     "openlens",
-    "freelens"
+    "freelens",
+    "terraform",
+    "opentofu",
+    "tofu-controller",
+    "flux",
+    "fluxcd",
+    "iac",
+    "gitops"
   ],
   "packageManager": "pnpm@10.34.1+sha512.b58fbde6dca66a929538021581f648b4570b6ca19b18e7cbd7f2c07a7b24454155388dacdf08f2af3678e88a6d1fe04f9d609df24bf51735a060ea041b374ab7"
 }

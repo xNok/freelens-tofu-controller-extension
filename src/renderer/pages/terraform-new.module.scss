@@ -1,0 +1,36 @@
+.page {
+  padding: 1.5rem 2rem;
+  max-width: 720px;
+
+  h1 {
+    margin-bottom: 1rem;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin-bottom: 0.85rem;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.85rem;
+  }
+
+  .actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1.5rem;
+  }
+
+  .hint {
+    color: var(--colorVague, #888);
+    font-size: 0.85rem;
+  }
+
+  label {
+    font-weight: 600;
+  }
+}

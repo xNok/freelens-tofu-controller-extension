@@ -4,58 +4,45 @@
  */
 
 import { Renderer } from "@freelensapp/extensions";
-import { ExamplePreferencesStore } from "../common/store";
-import { createAvailableVersionPage } from "./components/available-version";
-import { ExampleDetails as ExampleDetailsV1alpha1 } from "./details/example-details-v1alpha1";
-import { ExampleDetails as ExampleDetailsV1alpha2 } from "./details/example-details-v1alpha2";
-import { ExampleIcon } from "./icons";
-import { Example as ExampleV1alpha1 } from "./k8s/example/example-v1alpha1";
-import { Example as ExampleV1alpha2 } from "./k8s/example/example-v1alpha2";
-import {
-  ExampleActiveToggleMenuItem as ExampleActiveToggleMenuItem_v1alpha1,
-  type ExampleActiveToggleMenuItemProps as ExampleActiveToggleMenuItemProps_v1alpha1,
-} from "./menus/example-active-toggle-menu-item-v1alpha1";
-import {
-  ExampleActiveToggleMenuItem as ExampleActiveToggleMenuItem_v1alpha2,
-  type ExampleActiveToggleMenuItemProps as ExampleActiveToggleMenuItemProps_v1alpha2,
-} from "./menus/example-active-toggle-menu-item-v1alpha2";
-import { ExamplesPage as ExamplesPageV1alpha1 } from "./pages/examples-page-v1alpha1";
-import { ExamplesPage as ExamplesPageV1alpha2 } from "./pages/examples-page-v1alpha2";
-import { ExamplePreferenceHint, ExamplePreferenceInput } from "./preferences/example-preference";
+import { TerraformPreferencesStore } from "../common/store";
+import { TerraformDetails } from "./details/terraform-details-v1alpha2";
+import { TerraformIcon } from "./icons";
+import { Terraform } from "./k8s/terraform/terraform-v1alpha2";
+import { TerraformApprovePlanMenuItem } from "./menus/terraform-approve-plan-menu-item";
+import { TerraformBreakGlassMenuItem } from "./menus/terraform-break-glass-menu-item";
+import { TerraformForceUnlockMenuItem } from "./menus/terraform-force-unlock-menu-item";
+import { TerraformReconcileMenuItem } from "./menus/terraform-reconcile-menu-item";
+import { TerraformReplanMenuItem } from "./menus/terraform-replan-menu-item";
+import { TerraformShowPlanMenuItem } from "./menus/terraform-show-plan-menu-item";
+import { TerraformSuspendToggleMenuItem } from "./menus/terraform-suspend-toggle-menu-item";
+import { TerraformNewPage } from "./pages/terraform-new-page";
+import { TerraformOverviewPage } from "./pages/terraform-overview-page";
+import { TerraformsPage } from "./pages/terraforms-page-v1alpha2";
+import { TerraformPreferenceHint, TerraformPreferenceInput } from "./preferences/terraform-preference";
 
-export default class ExampleRenderer extends Renderer.LensExtension {
+export default class TofuControllerRenderer extends Renderer.LensExtension {
   async onActivate() {
-    ExamplePreferencesStore.getInstanceOrCreate().loadExtension(this);
+    TerraformPreferencesStore.getInstanceOrCreate().loadExtension(this);
   }
 
   appPreferences = [
     {
-      title: "Example Preferences",
+      title: "Tofu Controller",
       components: {
-        Input: () => <ExamplePreferenceInput />,
-        Hint: () => <ExamplePreferenceHint />,
+        Input: () => <TerraformPreferenceInput />,
+        Hint: () => <TerraformPreferenceHint />,
       },
     },
   ];
 
   kubeObjectDetailItems = [
     {
-      kind: ExampleV1alpha1.kind,
-      apiVersions: ExampleV1alpha1.crd.apiVersions,
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
       priority: 10,
       components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<any>) => (
-          <ExampleDetailsV1alpha1 {...props} extension={this} />
-        ),
-      },
-    },
-    {
-      kind: ExampleV1alpha2.kind,
-      apiVersions: ExampleV1alpha2.crd.apiVersions,
-      priority: 10,
-      components: {
-        Details: (props: Renderer.Component.KubeObjectDetailsProps<any>) => (
-          <ExampleDetailsV1alpha2 {...props} extension={this} />
+        Details: (props: Renderer.Component.KubeObjectDetailsProps<Terraform>) => (
+          <TerraformDetails {...props} extension={this} />
         ),
       },
     },
@@ -63,56 +50,137 @@ export default class ExampleRenderer extends Renderer.LensExtension {
 
   clusterPages = [
     {
-      id: "example",
+      id: "overview",
       components: {
-        Page: () => <ExamplesPageV1alpha1 extension={this} />,
+        Page: () => <TerraformOverviewPage extension={this} />,
       },
     },
     {
-      id: "example",
+      id: "terraforms",
       components: {
-        Page: () => <ExamplesPageV1alpha2 extension={this} />,
+        Page: () => <TerraformsPage extension={this} />,
       },
     },
     {
-      id: "example",
+      id: "terraform-new",
       components: {
-        Page: createAvailableVersionPage("Examples", [
-          { kubeObjectClass: ExampleV1alpha2, PageComponent: ExamplesPageV1alpha2, version: "v1alpha2" },
-          { kubeObjectClass: ExampleV1alpha1, PageComponent: ExamplesPageV1alpha1, version: "v1alpha1" },
-        ]),
+        Page: () => <TerraformNewPage extension={this} />,
       },
     },
   ];
 
   clusterPageMenus = [
     {
-      id: "example",
-      title: ExampleV1alpha1.crd.title,
-      target: { pageId: "example" },
+      id: "tofu-controller",
+      title: "Tofu Controller",
       components: {
-        Icon: ExampleIcon,
+        Icon: TerraformIcon,
+      },
+    },
+    {
+      parentId: "tofu-controller",
+      target: { pageId: "overview" },
+      title: "Overview",
+      components: {
+        Icon: () => null,
+      },
+    },
+    {
+      parentId: "tofu-controller",
+      target: { pageId: "terraforms" },
+      title: Terraform.crd.title,
+      components: {
+        Icon: () => null,
       },
     },
   ];
 
   kubeObjectMenuItems = [
     {
-      kind: ExampleV1alpha1.kind,
-      apiVersions: ExampleV1alpha1.crd.apiVersions,
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
       components: {
-        MenuItem: (props: ExampleActiveToggleMenuItemProps_v1alpha1) => (
-          <ExampleActiveToggleMenuItem_v1alpha1 {...props} extension={this} />
+        MenuItem: (props: Renderer.Component.KubeObjectMenuProps<Terraform>) => (
+          <TerraformReconcileMenuItem {...props} extension={this} />
         ),
       },
     },
     {
-      kind: ExampleV1alpha2.kind,
-      apiVersions: ExampleV1alpha2.crd.apiVersions,
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
       components: {
-        MenuItem: (props: ExampleActiveToggleMenuItemProps_v1alpha2) => (
-          <ExampleActiveToggleMenuItem_v1alpha2 {...props} extension={this} />
+        MenuItem: (props: Renderer.Component.KubeObjectMenuProps<Terraform>) => (
+          <TerraformSuspendToggleMenuItem {...props} extension={this} />
         ),
+      },
+    },
+    {
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
+      components: {
+        MenuItem: (props: Renderer.Component.KubeObjectMenuProps<Terraform>) => (
+          <TerraformApprovePlanMenuItem {...props} extension={this} />
+        ),
+      },
+    },
+    {
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
+      components: {
+        MenuItem: (props: Renderer.Component.KubeObjectMenuProps<Terraform>) => (
+          <TerraformReplanMenuItem {...props} extension={this} />
+        ),
+      },
+    },
+    {
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
+      components: {
+        MenuItem: (props: Renderer.Component.KubeObjectMenuProps<Terraform>) => (
+          <TerraformShowPlanMenuItem {...props} extension={this} />
+        ),
+      },
+    },
+    {
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
+      components: {
+        MenuItem: (props: Renderer.Component.KubeObjectMenuProps<Terraform>) => (
+          <TerraformForceUnlockMenuItem {...props} extension={this} />
+        ),
+      },
+    },
+    {
+      kind: Terraform.kind,
+      apiVersions: Terraform.crd.apiVersions,
+      components: {
+        MenuItem: (props: Renderer.Component.KubeObjectMenuProps<Terraform>) => (
+          <TerraformBreakGlassMenuItem {...props} extension={this} />
+        ),
+      },
+    },
+  ];
+
+  commands = [
+    {
+      id: "tofu-controller.overview",
+      title: "Tofu Controller: open overview",
+      action: ({ navigate }: { navigate: (url: string) => void }) => {
+        navigate(`/extension/${this.sanitizedExtensionId}/overview`);
+      },
+    },
+    {
+      id: "tofu-controller.terraforms.list",
+      title: "Tofu Controller: open Terraform list",
+      action: ({ navigate }: { navigate: (url: string) => void }) => {
+        navigate(`/extension/${this.sanitizedExtensionId}/terraforms`);
+      },
+    },
+    {
+      id: "tofu-controller.terraforms.new",
+      title: "Tofu Controller: new Terraform resource",
+      action: ({ navigate }: { navigate: (url: string) => void }) => {
+        navigate(`/extension/${this.sanitizedExtensionId}/terraform-new`);
       },
     },
   ];

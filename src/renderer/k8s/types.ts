@@ -5,6 +5,6 @@ export interface NamespacedObjectReference {
   namespace?: string;
 }
 
-export interface ExampleKubeObjectCRD extends Renderer.K8sApi.LensExtensionKubeObjectCRD {
+export interface TerraformKubeObjectCRD extends Renderer.K8sApi.LensExtensionKubeObjectCRD {
   title: string;
 }
