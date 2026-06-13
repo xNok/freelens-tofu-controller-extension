@@ -1,0 +1,27 @@
+.page {
+  :global(.TableCell) {
+    &.ready {
+      flex-grow: 0.5;
+    }
+
+    &.message {
+      flex-grow: 2;
+    }
+
+    &.planPending {
+      flex-grow: 0.5;
+    }
+
+    &.suspended {
+      flex-grow: 0.4;
+    }
+
+    &.source {
+      flex-grow: 1.2;
+    }
+
+    &.age {
+      flex-grow: 0.3;
+    }
+  }
+}
