@@ -10,7 +10,7 @@
 
 <!-- markdownlint-enable MD013 -->
 
-This extension is a companion for [Flux Tofu Controller](https://github.com/flux-iac/tofu-controller) and implements feature parity with the `tfctl` command line tool for the Freelens application.
+This extension is a companion for [Flux Tofu Controller](https://github.com/flux-iac/tofu-controller) and implements feature parity with the `tfctl` command line tool for the Freelens application. Features include viewing Terraform resources, triggering plans, applying plans, viewing plan logs, and unlocking state.
 
 ## Requirements
 
@@ -104,6 +104,30 @@ and
 ```sh
 pnpm build
 pnpm knip:check
+```
+
+### Testing the extension with unpublished Freelens
+
+In Freelens working repository:
+
+```sh
+rm -f *.tgz
+pnpm i
+pnpm build
+pnpm pack -r
+```
+
+then for extension:
+
+```sh
+echo "overrides:" >> pnpm-workspace.yaml
+for i in ../freelens/*.tgz; do
+  name=$(tar zxOf $i package/package.json | yq -r .name)
+  echo "  \"$name\": $i" >> pnpm-workspace.yaml
+done
+
+pnpm clean:node_modules
+pnpm build
 ```
 
 ## License
