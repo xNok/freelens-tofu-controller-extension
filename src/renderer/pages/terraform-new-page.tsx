@@ -65,7 +65,7 @@ export const TerraformNewPage = (props: TerraformNewPageProps) =>
           },
         );
         Notifications.ok(`Created Terraform ${namespace}/${name}`);
-        navigate(`/extension/${props.extension.sanitizedExtensionId}/terraforms`);
+        navigate(`/extension/${props.extension.sanitizedExtensionId}/tofu-terraforms`);
       } catch (err) {
         Notifications.error(`Create failed: ${err}`);
       } finally {

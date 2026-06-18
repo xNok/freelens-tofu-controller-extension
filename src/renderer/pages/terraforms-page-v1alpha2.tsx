@@ -9,6 +9,7 @@ const { observer } = MobxReact;
 
 const {
   Component: { Badge, BadgeBoolean, KubeObjectAge, KubeObjectListLayout, LinkToNamespace, WithTooltip },
+  Navigation: { navigate },
 } = Renderer;
 
 const KubeObject = Terraform;
@@ -74,6 +75,10 @@ export const TerraformsPage = observer((props: TerraformsPageProps) =>
             <WithTooltip>{KubeObject.getSourceRefDisplay(object)}</WithTooltip>,
             <KubeObjectAge object={object} key="age" />,
           ]}
+          addRemoveButtons={{
+            onAdd: () => navigate(`/extension/${props.extension.sanitizedExtensionId}/tofu-new`),
+            addTooltip: "New Terraform",
+          }}
         />
       </>
     );
