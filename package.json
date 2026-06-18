@@ -1,6 +1,6 @@
 {
   "name": "@xnok/freelens-tofu-controller-extension",
-  "version": "0.1.1-2",
+  "version": "0.1.0",
   "description": "Freelens extension for managing Flux tofu-controller (OpenTofu/Terraform) resources",
   "repository": {
     "type": "git",
