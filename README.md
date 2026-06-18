@@ -10,7 +10,10 @@
 
 <!-- markdownlint-enable MD013 -->
 
-This extension is a companion for [Flux Tofu Controller](https://github.com/flux-iac/tofu-controller) and implements feature parity with the `tfctl` command line tool for the Freelens application. Features include viewing Terraform resources, triggering plans, applying plans, viewing plan logs, and unlocking state.
+This extension is a companion for
+[Flux Tofu Controller](https://github.com/flux-iac/tofu-controller) and implements feature parity
+with the `tfctl` command line tool for the Freelens application. Features include viewing
+Terraform resources, triggering plans, applying plans, viewing plan logs, and unlocking state.
 
 ## Requirements
 
