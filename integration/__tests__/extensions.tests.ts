@@ -97,7 +97,7 @@ describe("extensions page tests", () => {
     const installedExtensionName = await (
       await window.waitForSelector('div[class*="installed-extensions-module__extensionName--"]')
     ).textContent();
-    expect(installedExtensionName).toBe("@freelensapp/example-extension");
+    expect(installedExtensionName).toBe("@xnok/freelens-tofu-controller-extension");
     const installedExtensionState = await (
       await window.waitForSelector('div[class*="installed-extensions-module__enabled--"]')
     ).textContent();

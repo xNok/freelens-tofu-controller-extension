@@ -68,6 +68,7 @@ jobs:
 
       - name: Publish npm packages
         id: publish-npm
+        if: vars.PUBLISH_NPM == 'true'
         run: |
           case "${GITHUB_REF_NAME}" in
             *-*) dist_tag=next;;
@@ -82,7 +83,7 @@ jobs:
 
       - name: Publish npm packages (retry)
         id: publish-npm-2
-        if: steps.publish-npm.outcome == 'failure'
+        if: vars.PUBLISH_NPM == 'true' && steps.publish-npm.outcome == 'failure'
         run: |
           case "${GITHUB_REF_NAME}" in
             *-*) dist_tag=next;;
@@ -96,7 +97,7 @@ jobs:
         continue-on-error: true
 
       - name: Publish npm packages (retry 2)
-        if: steps.publish-npm-2.outcome == 'failure'
+        if: vars.PUBLISH_NPM == 'true' && steps.publish-npm-2.outcome == 'failure'
         run: |
           case "${GITHUB_REF_NAME}" in
             *-*) dist_tag=next;;
