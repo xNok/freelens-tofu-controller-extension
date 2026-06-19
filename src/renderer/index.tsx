@@ -50,19 +50,19 @@ export default class TofuControllerRenderer extends Renderer.LensExtension {
 
   clusterPages = [
     {
-      id: "overview",
+      id: "tofu-overview",
       components: {
         Page: () => <TerraformOverviewPage extension={this} />,
       },
     },
     {
-      id: "terraforms",
+      id: "tofu-terraforms",
       components: {
         Page: () => <TerraformsPage extension={this} />,
       },
     },
     {
-      id: "terraform-new",
+      id: "tofu-new",
       components: {
         Page: () => <TerraformNewPage extension={this} />,
       },
@@ -79,7 +79,7 @@ export default class TofuControllerRenderer extends Renderer.LensExtension {
     },
     {
       parentId: "tofu-controller",
-      target: { pageId: "overview" },
+      target: { pageId: "tofu-overview" },
       title: "Overview",
       components: {
         Icon: () => null,
@@ -87,8 +87,8 @@ export default class TofuControllerRenderer extends Renderer.LensExtension {
     },
     {
       parentId: "tofu-controller",
-      target: { pageId: "terraforms" },
-      title: Terraform.crd.title,
+      target: { pageId: "tofu-terraforms" },
+      title: "Terraforms",
       components: {
         Icon: () => null,
       },
@@ -166,21 +166,21 @@ export default class TofuControllerRenderer extends Renderer.LensExtension {
       id: "tofu-controller.overview",
       title: "Tofu Controller: open overview",
       action: ({ navigate }: { navigate: (url: string) => void }) => {
-        navigate(`/extension/${this.sanitizedExtensionId}/overview`);
+        navigate(`/extension/${this.sanitizedExtensionId}/tofu-overview`);
       },
     },
     {
       id: "tofu-controller.terraforms.list",
       title: "Tofu Controller: open Terraform list",
       action: ({ navigate }: { navigate: (url: string) => void }) => {
-        navigate(`/extension/${this.sanitizedExtensionId}/terraforms`);
+        navigate(`/extension/${this.sanitizedExtensionId}/tofu-terraforms`);
       },
     },
     {
       id: "tofu-controller.terraforms.new",
       title: "Tofu Controller: new Terraform resource",
       action: ({ navigate }: { navigate: (url: string) => void }) => {
-        navigate(`/extension/${this.sanitizedExtensionId}/terraform-new`);
+        navigate(`/extension/${this.sanitizedExtensionId}/tofu-new`);
       },
     },
   ];

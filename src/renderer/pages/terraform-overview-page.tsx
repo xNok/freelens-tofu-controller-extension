@@ -180,7 +180,7 @@ export const TerraformOverviewPage = observer((props: TerraformOverviewPageProps
       ],
     } as unknown as Renderer.Component.PieChartData;
 
-    const terraformsUrl = `/extension/${props.extension.sanitizedExtensionId}/terraforms`;
+    const terraformsUrl = `/extension/${props.extension.sanitizedExtensionId}/tofu-terraforms`;
 
     const renderInstalled = () => (
       <>
@@ -255,7 +255,7 @@ export const TerraformOverviewPage = observer((props: TerraformOverviewPageProps
           <Button label="Open Terraforms" primary onClick={() => navigate(terraformsUrl)} />
           <Button
             label="New Terraform"
-            onClick={() => navigate(`/extension/${props.extension.sanitizedExtensionId}/terraform-new`)}
+            onClick={() => navigate(`/extension/${props.extension.sanitizedExtensionId}/tofu-new`)}
           />
           <Button label="Refresh" plain onClick={refresh} />
         </div>
