@@ -1,17 +1,10 @@
 name: Automated biome migrate
 
+# Auto-triggers disabled: this workflow needs a PAT (`GH_TOKEN` secret) +
+# the `automated` environment to open follow-up PRs. Re-enable the push/
+# schedule/issue_comment triggers below once those are configured. Until
+# then the workflow can still be invoked manually via `workflow_dispatch`.
 on:
-  issue_comment:
-    types:
-      - created
-  push:
-    branches:
-      - main
-    paths:
-      - biome.jsonc
-      - package.json
-  schedule:
-    - cron: 2 6 * * *
   workflow_dispatch: {}
 
 permissions:
