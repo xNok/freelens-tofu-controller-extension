@@ -192,5 +192,21 @@ export class Terraform extends Renderer.K8sApi.LensExtensionKubeObject<
   }
 }
 
-export class TerraformApi extends Renderer.K8sApi.KubeApi<Terraform> {}
+// The default KubeApi.patch only targets the main resource. Some tofu-controller
+// operations (notably `replan`) need to mutate the `/status` subresource — the same
+// surface tfctl uses. KubeApi exposes a protected `request: KubeJsonApi`, so a thin
+// subclass can do the raw PATCH against `<resourceUrl>/status`.
+export class TerraformApi extends Renderer.K8sApi.KubeApi<Terraform> {
+  async patchStatus(
+    desc: { name: string; namespace: string },
+    statusPatch: Partial<TerraformStatus>,
+  ): Promise<Terraform | null> {
+    const url = `${this.formatUrlForNotListing(desc)}/status`;
+    return this.request.patch(
+      url,
+      { data: { status: statusPatch } },
+      { headers: { "content-type": "application/merge-patch+json" } },
+    ) as Promise<Terraform | null>;
+  }
+}
 export class TerraformStore extends Renderer.K8sApi.KubeObjectStore<Terraform, TerraformApi> {}
