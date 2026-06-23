@@ -74,28 +74,38 @@ export const TerraformReplanMenuItem = (props: TerraformReplanMenuItemProps) =>
         },
         labelOk: "Replan",
         message: (
-          <>
+          <div style={{ minWidth: "32rem", maxWidth: "44rem" }}>
             <p>
               Request the controller to regenerate the plan for <b>{name}</b>?
             </p>
-            <p>
-              <small>
-                The extension patches the <code>/status</code> subresource (clearing <code>plan.pending</code>) plus the
-                main spec to request a reconcile — the same operations tfctl performs. If status patching is denied by
-                RBAC, the extension falls back to a spec-only reconcile; in that case the equivalent tfctl command is:
-              </small>
+            <p style={{ marginTop: "0.75em", opacity: 0.75, fontSize: "0.9em" }}>
+              The extension patches <code>/status</code> to clear <code>plan.pending</code> and patches the main spec to
+              request a reconcile — the same operations <code>tfctl replan</code> performs. If the status patch is
+              denied by RBAC, the extension falls back to a spec-only reconcile; in that case run the equivalent command
+              instead:
             </p>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.5em", marginTop: "0.25em" }}>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "stretch",
+                gap: "0.5em",
+                marginTop: "0.5em",
+              }}
+            >
               <code
                 style={{
                   flex: 1,
-                  padding: "0.35em 0.6em",
+                  minWidth: 0,
+                  padding: "0.4em 0.6em",
                   background: "var(--colorVague, #2a2a2a)",
                   borderRadius: "3px",
                   fontFamily: "var(--font-monospace, monospace)",
+                  fontSize: "0.85em",
                   userSelect: "all",
                   overflowX: "auto",
                   whiteSpace: "nowrap",
+                  display: "flex",
+                  alignItems: "center",
                 }}
               >
                 {tfctlCommand}
@@ -104,18 +114,19 @@ export const TerraformReplanMenuItem = (props: TerraformReplanMenuItemProps) =>
                 type="button"
                 onClick={copyTfctlCommand}
                 style={{
-                  padding: "0.35em 0.75em",
+                  padding: "0.4em 0.9em",
                   cursor: "pointer",
                   border: "1px solid var(--borderFaintColor, #555)",
                   background: "transparent",
                   color: "inherit",
                   borderRadius: "3px",
+                  flexShrink: 0,
                 }}
               >
                 Copy
               </button>
             </div>
-          </>
+          </div>
         ),
       });
     };
