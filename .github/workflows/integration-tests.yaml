@@ -199,6 +199,16 @@ jobs:
           node_image: kindest/node:v${{ env.kubernetes_version }}
           wait: 5m
 
+      - name: Install Flux and Tofu Controller
+        if: runner.os == 'Linux'
+        run: |
+          curl -s https://fluxcd.io/install.sh | sudo bash
+          flux install
+          helm repo add tf-controller https://flux-iac.github.io/tofu-controller
+          helm upgrade -i tf-controller tf-controller/tf-controller \
+            --namespace flux-system \
+            --set runner.grpc.port=30000
+
       - name: Build extra resources
         id: build-resources
         working-directory: freelens
