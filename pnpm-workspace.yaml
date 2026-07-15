@@ -4,6 +4,8 @@ allowBuilds:
   esbuild: true
   node-pty: true
 
+enablePrePostScripts: false
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - electron
