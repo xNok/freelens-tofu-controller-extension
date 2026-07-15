@@ -123,6 +123,11 @@ describe("extensions page tests", () => {
     "installs an extension",
     async () => {
       expect([...errorLogs, ...processErrorLogs]).toEqual([]);
+
+      // verify the extension sidebar item is visible
+      console.log('await window.waitForSelector div[data-testid="sidebar-item-tofu-controller"]');
+      const sidebarItem = await window.waitForSelector('div[data-testid="sidebar-item-tofu-controller"]');
+      expect(sidebarItem).toBeTruthy();
     },
     100 * 60 * 1000,
   );
