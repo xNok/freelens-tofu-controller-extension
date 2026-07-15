@@ -105,6 +105,8 @@ describe("extensions page tests", () => {
     await window.click('i[data-testid*="close-notification-for-notification_"]');
     console.log('await window.click div[class*=[close-button-module__closeButton--"][aria-label="Close"]');
     await window.click('div[class*="close-button-module__closeButton--"][aria-label="Close"]');
+  // `utils.start()` launches Electron and waits up to 100s for the main window, then
+  // extension installation adds more time on top; 10 minutes matches the afterAll timeout.
   }, 10 * 60 * 1000);
 
   afterAll(
