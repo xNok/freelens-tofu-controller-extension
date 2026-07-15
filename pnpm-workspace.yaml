@@ -1,3 +1,11 @@
+allowBuilds:
+  '@parcel/watcher': true
+  electron: true
+  esbuild: true
+  node-pty: true
+
+enablePrePostScripts: false
+
 onlyBuiltDependencies:
   - '@parcel/watcher'
   - electron
@@ -6,3 +14,9 @@ onlyBuiltDependencies:
   - playwright
 
 shellEmulator: true
+
+supportedArchitectures:
+  os:
+    - current
+  cpu:
+    - current

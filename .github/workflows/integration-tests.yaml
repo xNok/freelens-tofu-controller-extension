@@ -162,7 +162,7 @@ jobs:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
       - name: Disable pre post scripts for pnpm
-        run: pnpm config set enablePrePostScripts false
+        run: pnpm config set --location=project enablePrePostScripts false
 
       - name: Install Electron headers
         if: steps.electron-headers.outputs.cache-hit != 'true'
