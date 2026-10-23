@@ -24,8 +24,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - freelens_version: v1.10.0
-          - freelens_version: main
+          # Pinned to the latest stable Freelens release, which is the host this
+          # extension supports (`engines.freelens: ^1.8.0`).
+          #
+          # `main` is not tested: it is 2.0.0-0, an unreleased line with no
+          # GitHub release that ships only as `@freelensapp/extensions`
+          # nightlies. It migrated the integration tests from jest to vitest,
+          # dropped the `electron-rebuild` script, and replaced the packaged-app
+          # harness with one that attaches to `pnpm dev` over CDP, so neither
+          # this workflow nor the test below applies to it. It would also report
+          # the extension as "Incompatible", since 2.x refuses
+          # `engines.freelens: ^1.8.0`. Revisit once 2.0 is released.
+          - freelens_version: v1.10.3
 
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
@@ -34,6 +44,7 @@ jobs:
       DO_NOT_TRACK: "1"
       ELECTRON_CACHE: ${{ github.workspace }}/.cache/electron
       ELECTRON_BUILDER_CACHE: ${{ github.workspace }}/.cache/electron-builder
+      ELECTRON_HEADERS_CACHE: ${{ github.workspace }}/.cache/electron-headers
       PLAYWRIGHT_BROWSERS_PATH: ${{ github.workspace }}/.cache/playwright
       TURBOREPO_CACHE: ${{ github.workspace }}/freelens/.turbo
 
@@ -118,13 +129,12 @@ jobs:
           restore-keys: |
             ubuntu-24.04-arm-electron-builder-
 
-      - name: Use Turborepo cache
+      - name: Use Electron headers cache
+        id: electron-headers
         uses: actions/cache@v5
         with:
-          path: ${{ env.TURBOREPO_CACHE }}
-          key: ubuntu-24.04-arm-turborepo-${{ hashFiles('freelens/**/package.json', 'freelens/**/pnpm-lock.yaml', 'freelens/turbo.json') }}
-          restore-keys: |
-            ubuntu-24.04-arm-turborepo-
+          path: ${{ env.ELECTRON_HEADERS_CACHE }}
+          key: electron-headers-${{ env.electron_version }}
 
       - name: Use Playwright cache
         id: playwright-cache
@@ -134,6 +144,14 @@ jobs:
           key: ubuntu-24.04-arm-playwright-${{ env.playwright_version }}
           restore-keys: |
             ubuntu-24.04-arm-playwright-
+
+      - name: Use Turborepo cache
+        uses: actions/cache@v5
+        with:
+          path: ${{ env.TURBOREPO_CACHE }}
+          key: ubuntu-24.04-arm-turborepo-${{ hashFiles('freelens/**/package.json', 'freelens/**/pnpm-lock.yaml', 'freelens/turbo.json') }}
+          restore-keys: |
+            ubuntu-24.04-arm-turborepo-
 
       - name: Delete node packages from the previous build to avoid issues with pnpm
         run: rm -rf pnpm-lock.yaml node_modules
@@ -155,6 +173,13 @@ jobs:
 
       - name: Disable pre post scripts for pnpm
         run: pnpm config set enablePrePostScripts false
+
+      - name: Install Electron headers
+        if: steps.electron-headers.outputs.cache-hit != 'true'
+        run: |
+          set -eo pipefail
+          mkdir -p $ELECTRON_HEADERS_CACHE
+          curl -sSfL https://www.electronjs.org/headers/v$electron_version/node-v$electron_version-headers.tar.gz -o $ELECTRON_HEADERS_CACHE/node-v$electron_version-headers.tar.gz
 
       - name: Install Playwright with dependencies
         if: steps.playwright-cache.outputs.cache-hit != 'true'
@@ -201,6 +226,12 @@ jobs:
         if: steps.build-resources-2.outcome == 'failure'
         working-directory: freelens
         run: pnpm --color=always build:resources
+
+      - name: Rebuild native packages for Electron
+        working-directory: freelens
+        run: pnpm --color=always electron-rebuild -a arm64
+        env:
+          npm_package_config_node_gyp_tarball: ${{ env.ELECTRON_HEADERS_CACHE }}/node-v${{ env.electron_version }}-headers.tar.gz
 
       - name: Get electron-builder path
         working-directory: freelens/freelens
