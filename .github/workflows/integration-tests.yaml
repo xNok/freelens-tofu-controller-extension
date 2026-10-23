@@ -24,8 +24,18 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # - freelens_version: v1.10.0
-          - freelens_version: main
+          # Pinned to the latest stable Freelens release, which is the host this
+          # extension supports (`engines.freelens: ^1.8.0`).
+          #
+          # `main` is not tested: it is 2.0.0-0, an unreleased line with no
+          # GitHub release that ships only as `@freelensapp/extensions`
+          # nightlies. It migrated the integration tests from jest to vitest,
+          # dropped the `electron-rebuild` script, and replaced the packaged-app
+          # harness with one that attaches to `pnpm dev` over CDP, so neither
+          # this workflow nor the test below applies to it. It would also report
+          # the extension as "Incompatible", since 2.x refuses
+          # `engines.freelens: ^1.8.0`. Revisit once 2.0 is released.
+          - freelens_version: v1.10.3
 
     runs-on: ubuntu-24.04-arm
     timeout-minutes: 60
