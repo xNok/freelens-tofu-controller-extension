@@ -132,23 +132,30 @@ export const TerraformOverviewPage = observer((props: TerraformOverviewPageProps
     } catch {
       items = [];
     }
+
     const b = bucket(items);
 
     // Recent Terraform events from the global event store, narrowed by group/kind.
+    // Performance Optimization: Use Schwartzian transform to extract event timestamps
+    // in a single O(N) map pass prior to sorting by numeric timestamp. This reduces Date
+    // object instantiations and date-parsing calls from O(N log N) to O(N) while maintaining
+    // direct MobX observable access for full reactivity.
     const events = (() => {
       try {
-        return eventStore.contextItems
-          .filter(
-            (e) =>
-              (e.involvedObject?.apiVersion ?? "").startsWith(`${TERRAFORM_GROUP}/`) ||
-              e.involvedObject?.kind === TERRAFORM_KIND,
-          )
-          .sort((a, b) => {
-            const ta = new Date(a.lastTimestamp ?? a.metadata.creationTimestamp ?? 0).getTime();
-            const tb = new Date(b.lastTimestamp ?? b.metadata.creationTimestamp ?? 0).getTime();
-            return tb - ta;
-          })
-          .slice(0, 25);
+        const filtered = eventStore.contextItems.filter(
+          (e) =>
+            (e.involvedObject?.apiVersion ?? "").startsWith(`${TERRAFORM_GROUP}/`) ||
+            e.involvedObject?.kind === TERRAFORM_KIND,
+        );
+        const decorated = filtered.map((e) => {
+          const ts = e.lastTimestamp ?? e.metadata.creationTimestamp;
+          return {
+            event: e,
+            time: ts ? new Date(ts).getTime() : 0,
+          };
+        });
+        decorated.sort((a, b) => b.time - a.time);
+        return decorated.slice(0, 25).map((d) => d.event);
       } catch {
         return [];
       }
